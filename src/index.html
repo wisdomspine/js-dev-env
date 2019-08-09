@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#56ddc3">
+  <title>Document</title>
+  <script src="bundle.js"></script>
+  <script>
+    const DEFAULT="#ed43dc";
+
+    const updateThemeColor= e=>{
+      let color=document.querySelector("#theme-color").value;
+      cookie.set('theme-color', color, 1000*60*60*365);
+      loadThemeColor();
+    }
+
+      const loadThemeColor=()=>{
+        let color;
+        if(!cookie.contains('theme-color'))
+          color=DEFAULT;
+        else
+          color= cookie.get('theme-color');
+        document.querySelector("meta[name='theme-color']").setAttribute('content', color);
+        document.querySelector("#theme-color").value=color;
+      }
+
+      const uiCanInteract=()=>{
+        document.querySelector("#theme-color").addEventListener("input", updateThemeColor, false);
+      }
+
+      window.addEventListener("load", e=>{
+        loadThemeColor();
+        uiCanInteract();
+      })
+
+      const cookie=()=>{
+        throw TypeError();
+      }
+      Object.defineProperty(cookie, 'all', {
+        get:()=>{
+          let cookies=document.cookie.split(";");
+          let obj={};
+          cookies.forEach((cook, index, whole)=>{
+            let prop= cook.split("=")[0];
+            let val= cook.split("=")[1];
+            obj[prop]=val;
+          })
+          return obj;
+      }
+      });
+
+      Object.defineProperties(cookie, {
+        delete: {
+          value: function(prop){
+            if(this.contains(prop))
+             this.set(prop, null, new Date()-100000000);
+          }
+        },
+        set:{
+          value: function(prop, value, age){
+            let cookieString=`${prop}=${value};${age===undefined?'':'max-age='+age/1000}`;
+            document.cookie=cookieString;
+          }
+        },
+        contains:{
+          value: function(prop){
+            return this.all.hasOwnProperty(prop);
+          }
+        },
+        get:{
+          value: function(prop){
+            return this.all[prop];
+          }
+        }
+      })
+  </script>
+</head>
+<body>
+    <h1>Hello world</h1>
+    <label for="theme-color">Select a  color theme</label>
+    <input type="color" name="" id="theme-color">
+</body>
+</html>
